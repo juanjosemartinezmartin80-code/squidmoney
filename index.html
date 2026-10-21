@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#09090f">
+<title>Squid Budget | Control de gastos</title>
+<style>
+:root{--bg:#09090f;--panel:#12121c;--panel2:#191927;--red:#ff3158;--pink:#ff4f9a;--green:#52f5bd;--gold:#f6d365;--text:#f4f3fa;--muted:#aaa8bb;--line:#343044;--danger:#ff687b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#251025 0,#09090f 52%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{padding:28px 18px 18px;text-align:center;border-bottom:1px solid #3b1b31;background:linear-gradient(180deg,#210d1c88,transparent)}
+.symbols{color:var(--pink);letter-spacing:13px;font-size:20px;font-weight:900}.eyebrow{font-size:11px;letter-spacing:3px;color:var(--green);font-weight:800;margin:10px 0}
+h1{font-size:clamp(27px,6vw,46px);margin:4px 0;text-transform:uppercase;letter-spacing:1px;text-shadow:0 0 18px #ff315855}h1 span{color:var(--pink)}.subtitle{color:var(--muted);font-size:13px;max-width:560px;margin:10px auto 0;line-height:1.5}
+main{max-width:1100px;margin:auto;padding:18px 14px 45px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:14px 0 20px}
+button,.btn{border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:#201725;color:var(--text);font-weight:750;cursor:pointer;font-size:13px}button:hover{border-color:var(--pink);filter:brightness(1.12)}button.primary{background:var(--red);border-color:var(--red);color:white}button.good{background:#103d32;border-color:#1c7259;color:var(--green)}button.danger{background:#3b1823;border-color:#6a2638;color:#ff9aaa}button.small{padding:6px 9px;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}.stat,.panel,.category{background:linear-gradient(145deg,#171722,#101018);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:0 8px 25px #0002}.stat label{display:block;color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase}.stat strong{display:block;font-size:clamp(17px,3vw,25px);margin-top:8px;overflow-wrap:anywhere}.stat:nth-child(1) strong{color:var(--pink)}.stat:nth-child(2) strong{color:var(--gold)}.stat:nth-child(3) strong{color:var(--green)}.stat:nth-child(4) strong{color:#d3a7ff}
+.notice{border:1px solid #6c4e22;background:#241d12;color:#f8dda2;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.55;margin-bottom:16px}
+.syncbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 15px}.dot{width:9px;height:9px;border-radius:50%;background:#888;display:inline-block}.dot.on{background:var(--green);box-shadow:0 0 10px #52f5bd77}.dot.off{background:var(--gold)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.tab{background:#11111a;border:1px solid var(--line);padding:13px 8px;border-radius:12px;text-align:center;cursor:pointer;font-weight:800}.tab.active{border-color:var(--pink);box-shadow:inset 0 0 0 1px #ff4f9a55;background:#2b1224;color:#ff91c4}.tab small{display:block;font-weight:500;color:var(--muted);margin-top:4px;font-size:11px}
+.category{margin-bottom:14px}.category h2{font-size:19px;margin:0 0 5px}.category .desc{font-size:12px;color:var(--muted);margin-bottom:14px}.fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field.wide{grid-column:span 2}.field label{font-size:11px;color:var(--muted)}input,select,textarea{width:100%;background:#0b0b12;border:1px solid #3a3549;border-radius:8px;padding:10px;color:var(--text);font:inherit;font-size:13px;min-width:0}input:focus,select:focus,textarea:focus{outline:1px solid var(--pink);border-color:var(--pink)}.calculation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:13px}.mini{background:#0c0c13;border:1px solid #302a3c;border-radius:10px;padding:11px}.mini span{font-size:10px;color:var(--muted);display:block}.mini strong{display:block;font-size:15px;margin-top:5px;overflow-wrap:anywhere}.addform{margin-top:15px;border-top:1px solid var(--line);padding-top:15px}.addform h3{font-size:14px;margin:0 0 12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tablewrap{overflow-x:auto;margin-top:14px}table{border-collapse:collapse;width:100%;min-width:600px;font-size:12px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #2b2737}th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px}td.money{white-space:nowrap;color:var(--gold);font-weight:750}.empty{color:var(--muted);text-align:center;padding:22px 8px;font-size:13px}
+.sectiontitle{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:25px 0 10px}.sectiontitle h2{margin:0;font-size:19px}.sectiontitle span{font-size:11px;color:var(--muted)}
+footer{text-align:center;color:#777486;font-size:11px;line-height:1.6;padding:22px 10px}
+dialog{width:min(620px,calc(100% - 24px));background:#15131e;border:1px solid #60405a;color:var(--text);border-radius:16px;padding:20px}dialog::backdrop{background:#000b;backdrop-filter:blur(4px)}dialog h2{margin-top:0}.helptext{font-size:12px;color:var(--muted);line-height:1.6}.code{display:block;background:#09090f;border:1px solid var(--line);border-radius:8px;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;font:11px ui-monospace,monospace;color:#b7ffd9}.statusmsg{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+@media(max-width:680px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.calculation{grid-template-columns:1fr}.stat{padding:12px}.category{padding:13px}.field.wide{grid-column:span 2}.tabs{gap:5px}.tab{font-size:12px;padding:11px 4px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="symbols">○ △ □</div>
+  <div class="eyebrow">CONTROL DE OPERACIONES · 30 OCT 2026</div>
+  <h1>SQUID <span>BUDGET</span></h1>
+  <p class="subtitle">Registro compartido de gastos, costos por unidad y ganancias estimadas para el emprendimiento escolar.</p>
+</header>
+<main>
+  <div class="toolbar">
+    <button class="primary" id="setupBtn">☁ Configurar sincronización</button>
+    <button id="exportBtn">Exportar respaldo</button>
+    <button id="importBtn">Importar respaldo</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+  <div class="syncbar"><span class="dot off" id="syncDot"></span><span id="syncText">Modo local: los cambios solo se guardan en este navegador.</span><button class="small" id="refreshBtn">Actualizar</button></div>
+  <div class="notice"><b>Importante:</b> sin configurar la sincronización, cada celular tendrá sus propios datos. Para que los cinco vean y editen la misma lista desde WhatsApp, deben conectar esta página a una base de datos compartida (instrucciones en “Configurar sincronización”).</div>
+  <section class="stats">
+    <div class="stat"><label>Gastos registrados</label><strong id="totalSpent">$0</strong></div>
+    <div class="stat"><label>Ingresos proyectados</label><strong id="totalRevenue">$0</strong></div>
+    <div class="stat"><label>Ganancia estimada</label><strong id="totalProfit">$0</strong></div>
+    <div class="stat"><label>Margen estimado</label><strong id="totalMargin">0%</strong></div>
+  </section>
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-cat="dalgona">○ Galletas Dalgona<small id="tabDalgona">$0 en gastos</small></button>
+    <button class="tab" data-cat="sal">△ Comida de sal<small id="tabSal">$0 en gastos</small></button>
+    <button class="tab" data-cat="bebidas">□ Bebidas<small id="tabBebidas">$0 en gastos</small></button>
+  </div>
+  <section id="categoryView"></section>
+  <div class="sectiontitle"><h2>Registro de gastos</h2><span id="entryCount">0 registros</span></div>
+  <div class="panel">
+    <div class="fields">
+      <div class="field wide"><label>Buscar producto o gasto</label><input id="search" placeholder="Ej. azúcar, bolsas, bicarbonato…"></div>
+      <div class="field"><label>Filtrar sección</label><select id="filterCat"><option value="all">Todas</option><option value="dalgona">Galletas Dalgona</option><option value="sal">Comida de sal</option><option value="bebidas">Bebidas</option></select></div>
+      <div class="field"><label>Orden</label><select id="sort"><option value="new">Más recientes</option><option value="old">Más antiguos</option><option value="cost">Mayor costo</option></select></div>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>Sección / gasto</th><th>Cantidad</th><th>Valor total</th><th>Responsable</th><th>Acciones</th></tr></thead><tbody id="expenseRows"></tbody></table></div>
+  </div>
+  <footer>Squid Budget · Feria de emprendimiento escolar<br>Los cálculos son estimaciones. Registra el costo real y verifica el inventario antes de decidir precios.</footer>
+</main>
+
+<dialog id="setupDialog">
+  <h2>☁ Sincronización entre celulares</h2>
+  <p class="helptext">Para compartir la misma información con tus compañeros, esta página necesita una base de datos online. Una opción es Supabase (plan gratuito). Configúrala una sola vez y pega la misma URL y clave pública en cada celular.</p>
+  <ol class="helptext">
+    <li>Crea un proyecto en <b>supabase.com</b>.</li>
+    <li>En SQL Editor, ejecuta el SQL que aparece abajo.</li>
+    <li>En Project Settings → API copia la Project URL y la clave <b>anon/public</b>.</li>
+    <li>Pega esos datos aquí y pulsa Conectar. Todos los compañeros deben configurar los mismos datos.</li>
+  </ol>
+  <div class="field"><label>Supabase Project URL</label><input id="supabaseUrl" placeholder="https://xxxxx.supabase.co"></div>
+  <div class="field" style="margin-top:10px"><label>Clave pública anon</label><input id="supabaseKey" placeholder="eyJ..." autocomplete="off"></div>
+  <div class="actions"><button class="primary" id="connectBtn">Conectar y sincronizar</button><button id="closeSetup">Cerrar</button></div>
+  <p class="statusmsg" id="setupStatus"></p>
+  <h3 style="font-size:13px;margin-top:20px">SQL para crear la tabla</h3>
+  <pre class="code" id="sqlCode">create table if not exists public.squid_expenses (
+  id text primary key,
+  category text not null check (category in ('dalgona','sal','bebidas')),
+  item text not null,
+  quantity numeric not null default 1,
+  unit text not null default 'unidad',
+  total_cost numeric not null default 0,
+  responsible text default '',
+  notes text default '',
+  created_at timestamptz not null default now()
+);
+alter table public.squid_expenses enable row level security;
+create policy "shared read" on public.squid_expenses for select to anon using (true);
+create policy "shared insert" on public.squid_expenses for insert to anon with check (true);
+create policy "shared update" on public.squid_expenses for update to anon using (true) with check (true);
+create policy "shared delete" on public.squid_expenses for delete to anon using (true);
+grant select, insert, update, delete on public.squid_expenses to anon;
+
+create table if not exists public.squid_plans (
+  category text primary key check (category in ('dalgona','sal','bebidas')),
+  quantity numeric not null default 20,
+  price numeric not null default 2000,
+  updated_at timestamptz not null default now()
+);
+alter table public.squid_plans enable row level security;
+create policy "shared plans read" on public.squid_plans for select to anon using (true);
+create policy "shared plans insert" on public.squid_plans for insert to anon with check (true);
+create policy "shared plans update" on public.squid_plans for update to anon using (true) with check (true);
+grant select, insert, update on public.squid_plans to anon;
+insert into public.squid_plans (category, quantity, price)
+values ('dalgona',20,2000), ('sal',20,2000), ('bebidas',20,2000)
+on conflict (category) do nothing;</pre>
+  <div class="actions"><button class="good" id="copySql">Copiar SQL</button></div>
+  <p class="helptext" style="color:#ffbfca">Aviso: estas reglas permiten que cualquiera con la URL y la clave pública pueda editar o borrar los datos. Úsenlo solo para este proyecto temporal y no guarden información privada. No compartas la clave service_role.</p>
+</dialog>
+
+<script>
+const money=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(n)||0);
+const cats={dalgona:{name:'Galletas Dalgona',desc:'Aquí registra azúcar, bicarbonato, empaques y cualquier otro gasto relacionado con las galletas.',qtyLabel:'Galletas que planean producir',priceLabel:'Precio de venta por galleta'},sal:{name:'Comida de sal',desc:'Sección reservada para el producto salado que elijan. Agrega ingredientes, paquetes, empaques y demás gastos.',qtyLabel:'Unidades que planean vender',priceLabel:'Precio de venta por unidad'},bebidas:{name:'Bebidas',desc:'Registra bebidas, agua, jugos, hielo, transporte específico u otros costos de esta sección.',qtyLabel:'Bebidas que planean vender',priceLabel:'Precio de venta por bebida'}};
+let expenses=JSON.parse(localStorage.getItem('squidExpenses')||'[]');
+let plans=JSON.parse(localStorage.getItem('squidPlans')||'{}');
+let activeCat='dalgona', config=JSON.parse(localStorage.getItem('squidSupabase')||'null'), supa=null, polling=null, isRemote=false;
+for(const c of Object.keys(cats)){plans[c] ||= {quantity:20,price:c==='dalgona'?2000:2000};}
+const $=id=>document.getElementById(id);
+function persistLocal(){localStorage.setItem('squidExpenses',JSON.stringify(expenses));localStorage.setItem('squidPlans',JSON.stringify(plans));}
+function catCost(c){return expenses.filter(e=>e.category===c).reduce((s,e)=>s+Number(e.total_cost||0),0)}
+function allCost(){return expenses.reduce((s,e)=>s+Number(e.total_cost||0),0)}
+function projection(c){let cost=catCost(c),q=Math.max(0,Number(plans[c].quantity)||0),p=Math.max(0,Number(plans[c].price)||0);return {cost,q,p,unit:q?cost/q:0,revenue:q*p,profit:q*p-cost,margin:q*p?((q*p-cost)/(q*p))*100:0}}
+function render(){
+ $('totalSpent').textContent=money(allCost());
+ let rev=0,profit=0;for(const c of Object.keys(cats)){const x=projection(c);rev+=x.revenue;profit+=x.profit;$('tab'+({dalgona:'Dalgona',sal:'Sal',bebidas:'Bebidas'}[c])).textContent=money(x.cost)+' en gastos';}
+ $('totalRevenue').textContent=money(rev);$('totalProfit').textContent=money(profit);$('totalProfit').style.color=profit>=0?'var(--green)':'var(--danger)';$('totalMargin').textContent=(rev?((profit/rev)*100):0).toFixed(1)+'%';
+ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.cat===activeCat));
+ const c=cats[activeCat],p=plans[activeCat],x=projection(activeCat);
+ $('categoryView').innerHTML=`<div class="category"><h2>${c.name}</h2><div class="desc">${c.desc}</div>
+ <div class="fields">
+ <div class="field"><label>${c.qtyLabel}</label><input type="number" min="0" step="1" id="planQty" value="${p.quantity}"></div>
+ <div class="field"><label>${c.priceLabel} (COP)</label><input type="number" min="0" step="100" id="planPrice" value="${p.price}"></div>
+ </div>
+ <div class="calculation">
+ <div class="mini"><span>Gastos de esta sección</span><strong>${money(x.cost)}</strong></div>
+ <div class="mini"><span>Costo estimado por unidad</span><strong>${x.q?money(x.unit):'Define unidades'}</strong></div>
+ <div class="mini"><span>Ganancia estimada de esta sección</span><strong style="color:${x.profit>=0?'var(--green)':'var(--danger)'}">${money(x.profit)}</strong></div>
+ </div>
+ <div class="addform"><h3>＋ Agregar gasto a ${c.name}</h3>
+ <div class="fields">
+ <div class="field wide"><label>¿Qué compraron o gastaron?</label><input id="newItem" placeholder="Ej. azúcar, 2 libras" maxlength="100"></div>
+ <div class="field"><label>Cantidad</label><input id="newQty" type="number" min="0.01" step="any" value="1"></div>
+ <div class="field"><label>Unidad</label><select id="newUnit"><option>unidad</option><option>libra</option><option>kg</option><option>gramo</option><option>litro</option><option>ml</option><option>paquete</option><option>bolsa</option><option>docena</option><option>otro</option></select></div>
+ <div class="field"><label>Valor TOTAL pagado (COP)</label><input id="newCost" type="number" min="0" step="50" placeholder="Ej. 6000"></div>
+ <div class="field"><label>¿Quién lo registró?</label><input id="newResponsible" placeholder="Nombre" maxlength="60"></div>
+ <div class="field wide"><label>Nota (opcional)</label><input id="newNotes" placeholder="Tienda, recibo, detalle…" maxlength="160"></div>
+ </div>
+ <div class="actions"><button class="primary" id="addExpense">＋ Guardar gasto</button><button id="clearForm">Limpiar campos</button></div>
+ <p class="helptext">Registra el valor total que realmente pagaron por esa compra. Ejemplo: si compraron 2 libras de azúcar por $6.000, cantidad = 2, unidad = libra y valor total = $6.000.</p>
+ </div></div>`;
+ $('planQty').addEventListener('change',async e=>{plans[activeCat].quantity=Math.max(0,Number(e.target.value)||0);persistLocal();render();if(isRemote)savePlan(activeCat).catch(err=>alert('No se pudo sincronizar la cantidad: '+err.message))});
+ $('planPrice').addEventListener('change',async e=>{plans[activeCat].price=Math.max(0,Number(e.target.value)||0);persistLocal();render();if(isRemote)savePlan(activeCat).catch(err=>alert('No se pudo sincronizar el precio: '+err.message))});
+ $('addExpense').addEventListener('click',addExpense);
+ $('clearForm').addEventListener('click',()=>{['newItem','newCost','newResponsible','newNotes'].forEach(id=>$(id).value='');$('newQty').value='1';$('newUnit').value='unidad'});
+ renderTable();
+}
+function renderTable(){
+ let list=[...expenses],q=$('search').value.toLowerCase(),filter=$('filterCat').value,sort=$('sort').value;
+ list=list.filter(e=>(filter==='all'||e.category===filter)&&(`${e.item} ${e.notes||''} ${e.responsible||''}`).toLowerCase().includes(q));
+ if(sort==='new')list.sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));if(sort==='old')list.sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||''));if(sort==='cost')list.sort((a,b)=>Number(b.total_cost)-Number(a.total_cost));
+ $('entryCount').textContent=list.length+' registro'+(list.length===1?'':'s');
+ $('expenseRows').innerHTML=list.length?list.map(e=>`<tr><td><b>${esc(cats[e.category]?.name||e.category)}</b><br>${esc(e.item)}${e.notes?`<br><span style="color:var(--muted)">${esc(e.notes)}</span>`:''}</td><td>${Number(e.quantity)} ${esc(e.unit||'unidad')}</td><td class="money">${money(e.total_cost)}</td><td>${esc(e.responsible||'—')}</td><td><button class="small" data-edit="${e.id}">Editar</button> <button class="small danger" data-del="${e.id}">Eliminar</button></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Todavía no hay gastos registrados. Agrega el primero en una de las tres secciones.</td></tr>`;
+ $('expenseRows').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>deleteExpense(b.dataset.del)));
+ $('expenseRows').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>editExpense(b.dataset.edit)));
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function addExpense(){
+ const item=$('newItem').value.trim(),qty=Number($('newQty').value),cost=Number($('newCost').value);
+ if(!item){alert('Escribe el nombre del gasto.');return}if(!(qty>0)){alert('La cantidad debe ser mayor que cero.');return}if(!(cost>=0)||$('newCost').value===''){alert('Ingresa el valor total pagado.');return}
+ const e={id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),category:activeCat,item,quantity:qty,unit:$('newUnit').value,total_cost:cost,responsible:$('newResponsible').value.trim(),notes:$('newNotes').value.trim(),created_at:new Date().toISOString()};
+ expenses.unshift(e);persistLocal();render();if(isRemote){try{await remoteInsert(e)}catch(err){alert('Se guardó localmente, pero no se pudo sincronizar: '+err.message)}}}
+async function deleteExpense(id){const e=expenses.find(x=>x.id===id);if(!e)return;if(!confirm('¿Eliminar el gasto "'+e.item+'"? Esta acción afecta el total de gastos.'))return;expenses=expenses.filter(x=>x.id!==id);persistLocal();render();if(isRemote){try{await remoteDelete(id)}catch(err){alert('No se pudo sincronizar el borrado: '+err.message)}}}
+async function editExpense(id){const e=expenses.find(x=>x.id===id);if(!e)return;const item=prompt('Nombre del gasto:',e.item);if(item===null)return;const raw=prompt('Valor TOTAL pagado (COP):',e.total_cost);if(raw===null)return;const cost=Number(raw);if(!item.trim()||!Number.isFinite(cost)||cost<0){alert('Datos no válidos.');return}const quantityRaw=prompt('Cantidad comprada:',e.quantity);if(quantityRaw===null)return;const quantity=Number(quantityRaw);if(!(quantity>0)){alert('Cantidad no válida.');return}Object.assign(e,{item:item.trim(),total_cost:cost,quantity});persistLocal();render();if(isRemote){try{await remoteUpdate(e)}catch(err){alert('No se pudo sincronizar la edición: '+err.message)}}}
+async function request(path,options={}){const res=await fetch(config.url.replace(/\/$/,'')+'/rest/v1/'+path,{...options,headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json',Prefer:'return=representation',...(options.headers||{})}});if(!res.ok)throw new Error((await res.text()).slice(0,250)||res.statusText);return res.status===204?null:res.json()}
+async function remoteLoad(){const results=await Promise.all([request('squid_expenses?select=*&order=created_at.desc'),request('squid_plans?select=*')]);expenses=results[0]||[];(results[1]||[]).forEach(p=>{if(cats[p.category])plans[p.category]={quantity:Number(p.quantity),price:Number(p.price)}});persistLocal();render()}
+async function savePlan(category){const p=plans[category];await request('squid_plans?on_conflict=category',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({category,quantity:p.quantity,price:p.price,updated_at:new Date().toISOString()})})}
+async function remoteInsert(e){await request('squid_expenses',{method:'POST',body:JSON.stringify(e)})}
+async function remoteDelete(id){await request('squid_expenses?id=eq.'+encodeURIComponent(id),{method:'DELETE'})}
+async function remoteUpdate(e){await request('squid_expenses?id=eq.'+encodeURIComponent(e.id),{method:'PATCH',body:JSON.stringify(e)})}
+async function connect(){
+ const url=$('supabaseUrl').value.trim().replace(/\/$/,''),key=$('supabaseKey').value.trim();if(!/^https:\/\/.+\.supabase\.co$/.test(url)||!key){$('setupStatus').textContent='Revisa la URL y la clave pública.';return}
+ config={url,key};$('setupStatus').textContent='Probando conexión…';
+ try{const old=expenses;const data=await requestWith(url,key,'squid_expenses?select=*&limit=1');await requestWith(url,key,'squid_plans?select=*&limit=1');localStorage.setItem('squidSupabase',JSON.stringify(config));isRemote=true;expenses=data;await remoteLoad();$('setupStatus').textContent='¡Conectado! La lista compartida ya está sincronizada.';updateSync();if(polling)clearInterval(polling);polling=setInterval(()=>remoteLoad().catch(()=>{}),12000);}
+ catch(err){config=null;isRemote=false;$('setupStatus').textContent='No se pudo conectar. Comprueba que ejecutaste el SQL y copiaste bien la URL y la clave. Detalle: '+err.message;updateSync()}
+}
+async function requestWith(url,key,path){const r=await fetch(url+'/rest/v1/'+path,{headers:{apikey:key,Authorization:'Bearer '+key}});if(!r.ok)throw new Error((await r.text()).slice(0,200));return r.json()}
+function updateSync(){$('syncDot').className='dot '+(isRemote?'on':'off');$('syncText').textContent=isRemote?'Sincronización activada · actualiza cada 12 segundos':'Modo local: los cambios solo se guardan en este navegador.'}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{activeCat=b.dataset.cat;render()}));
+['search','filterCat','sort'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',renderTable));
+$('setupBtn').addEventListener('click',()=>{$('supabaseUrl').value=config?.url||'';$('supabaseKey').value=config?.key||'';$('setupDialog').showModal()});
+$('closeSetup').addEventListener('click',()=>$('setupDialog').close());$('connectBtn').addEventListener('click',connect);
+$('copySql').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('sqlCode').textContent);$('copySql').textContent='SQL copiado'}catch(e){alert('Selecciona y copia manualmente el SQL.')}});
+$('refreshBtn').addEventListener('click',()=>{if(isRemote)remoteLoad().catch(e=>alert('Error actualizando: '+e.message));else{render();alert('Modo local: no hay una base compartida configurada.')}});
+$('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({expenses,plans,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='squid-budget-respaldo.json';a.click();URL.revokeObjectURL(a.href)});
+$('importBtn').addEventListener('click',()=>$('importFile').click());
+$('importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.expenses))throw Error('Archivo no válido');if(!confirm('Importar reemplazará la lista local. ¿Continuar?'))return;expenses=d.expenses;plans={...plans,...(d.plans||{})};persistLocal();render();if(isRemote)alert('Los datos importados están en este navegador. Para subirlos a la base compartida, vuelve a registrar los gastos o impórtalos desde el panel de Supabase.');}catch(err){alert('No se pudo importar: '+err.message)}e.target.value=''});
+if(config){$('supabaseUrl').value=config.url;$('supabaseKey').value=config.key;request('squid_expenses?select=*&limit=1').then(()=>{isRemote=true;remoteLoad();polling=setInterval(()=>remoteLoad().catch(()=>{}),12000)}).catch(()=>{isRemote=false;updateSync()})}
+render();updateSync();
+</script>
+</body>
+</html>
